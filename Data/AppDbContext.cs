@@ -1,0 +1,33 @@
+﻿using Microsoft.EntityFrameworkCore;
+using ZooApi.Models;
+
+namespace ZooApi.Data
+{
+    public class AppDbContext : DbContext
+    {
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+
+        public DbSet<Animal> Animais { get; set; }
+        public DbSet<Cuidado> Cuidados { get; set; }
+
+        public DbSet<AnimalCuidado> AnimaisCuidados { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<AnimalCuidado>()
+                .HasKey(ac => new { ac.AnimalId, ac.CuidadoId });
+
+            modelBuilder.Entity<AnimalCuidado>()
+                .HasOne(ac => ac.Animal)
+                .WithMany(a => a.AnimaisCuidados)
+                .HasForeignKey(ac => ac.AnimalId);
+
+            modelBuilder.Entity<AnimalCuidado>()
+                .HasOne(ac => ac.Cuidado)
+                .WithMany(c => c.AnimaisCuidados)
+                .HasForeignKey(ac => ac.CuidadoId);
+        }
+    }
+}
